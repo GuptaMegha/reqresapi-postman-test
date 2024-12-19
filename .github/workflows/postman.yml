@@ -1,1 +1,21 @@
+name: Run postman collection
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:  
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    - uses: actions/setup-node@v4
+      with:
+       node-version: 20
 
+    - name: Install newman
+      run: npm install -g newman
+
+    - name: Run Postman Collection
+      run: newman run Reqres-api-tests.postman_collection.json --environment ReqresApi.postman_environment.json --iteration-data loginData.json --reporters cli
