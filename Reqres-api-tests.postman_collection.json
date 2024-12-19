@@ -1,0 +1,360 @@
+{
+	"info": {
+		"_postman_id": "d5234ee3-cf6d-4bd7-889e-b3dca8f38718",
+		"name": "Reqres-api-tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40555673"
+	},
+	"item": [
+		{
+			"name": "LoginUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(`LoginUser: Status code is ${pm.iterationData.get(\"expectedStatus\")}`, function () {",
+							"  pm.response.to.have.status(parseInt(pm.iterationData.get(\"expectedStatus\")));",
+							"});",
+							"",
+							"const response = pm.response.json();",
+							"if (pm.response.code === 200) {",
+							"  pm.test(\"LoginUser: Token is present in the response\", function () {",
+							"    pm.expect(response).to.have.property(\"token\");",
+							"    pm.expect(response.token).to.not.be.empty;",
+							"  });",
+							"} else {",
+							"  pm.test(`LoginUser: Error message is '${pm.iterationData.get(\"expectedMessage\")}'`, function () {",
+							"    pm.expect(response.error).to.eql(pm.iterationData.get(\"expectedMessage\"));",
+							"  });",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"console.log(\"running request:\", pm.info.requestName, \"iteration\", pm.info.iteration);\r",
+							"if (pm.info.iteration > 0) {\r",
+							"    pm.execution.setNextRequest(null);\r",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/login",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GetListUsers",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const schema = {",
+							"  schema: \"http://json-schema.org/draft-07/schema\",",
+							"  type: \"object\",",
+							"  properties: {",
+							"    page: { type: \"integer\" },",
+							"    per_page: { type: \"integer\" },",
+							"    total: { type: \"integer\" },",
+							"    total_pages: { type: \"integer\" },",
+							"    data: {",
+							"      type: \"array\",",
+							"      items: {",
+							"        type: \"object\",",
+							"        properties: {",
+							"          id: { type: \"integer\" },",
+							"          email: { type: \"string\" },",
+							"          first_name: { type: \"string\" },",
+							"          last_name: { type: \"string\" },",
+							"          avatar: { type: \"string\" }",
+							"        },",
+							"        required: [\"id\", \"email\", \"first_name\", \"last_name\", \"avatar\"]",
+							"      }",
+							"    }",
+							"  },",
+							"  required: [\"page\", \"per_page\", \"total\", \"total_pages\", \"data\"]",
+							"};",
+							"",
+							"pm.test(\"GetUsers: Status code is 200\", () => {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test(\"GetUsers: Response is not empty\", function () {",
+							"    const jsonData = pm.response.json();",
+							"    pm.expect(jsonData).to.have.property(\"data\");",
+							"    pm.expect(jsonData.data).to.be.an(\"array\").that.is.not.empty;",
+							"});",
+							"",
+							"pm.test('GetUsers: Schema is valid', () => {",
+							"  pm.response.to.have.jsonSchema (schema);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "CreateUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const schema = {",
+							"    type: \"object\",",
+							"    properties: {",
+							"        createdAt: { type: \"string\" },",
+							"        name: { type: \"string\" },",
+							"        id: { type: \"string\" },",
+							"        job: { type: \"string\" },",
+							"    },",
+							"    required: [\"name\", \"job\", \"createdAt\"]",
+							"};",
+							"",
+							"pm.test(\"CreateUser: Status code is 201\", function () {",
+							"    pm.response.to.have.status(201);",
+							"});",
+							"",
+							"pm.test('CreateUser: Schema is valid', () => {",
+							"    pm.response.to.have.jsonSchema(schema);",
+							"});",
+							"",
+							"pm.test(\"CreateUser: Response has correct 'name' and 'job'\", function () {",
+							"    pm.expect(pm.response.json().name).to.eql(\"Megha\");",
+							"    pm.expect(pm.response.json().job).to.eql(\"QA Engineer\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (pm.info.iteration > 0) {",
+							"    pm.execution.setNextRequest(null); // Skip this request for iterations > 0",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"Megha\",\n  \"job\": \"QA Engineer\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "UpdateUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const schema = {",
+							"  type: \"object\",",
+							"  properties: {",
+							"    name: { type: \"string\" },",
+							"    job: { type: \"string\" },",
+							"    updatedAt: { type: \"string\" }",
+							"  },",
+							"  required: [\"name\", \"job\", \"updatedAt\"]",
+							"};",
+							"",
+							"pm.test(\"UpdateUser: Status code is 200\", function () {",
+							"  pm.response.to.have.status(200);",
+							"});",
+							"",
+							"pm.test('UpdateUser: Schema is valid', () => {",
+							"  pm.response.to.have.jsonSchema (schema);",
+							"});",
+							"",
+							"const response = pm.response.json();",
+							"pm.test(\"UpdateUser: Response has correct 'name' and 'job'\", function () {",
+							"  pm.expect(response.name).to.eql(\"John Doe\");",
+							"  pm.expect(response.job).to.eql(\"Software Engineer\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (pm.info.iteration > 0) {",
+							"    pm.execution.setNextRequest(null); // Skip this request for iterations > 0",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"name\": \"John Doe\",\n  \"job\": \"Software Engineer\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/users/?id=2",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users",
+						""
+					],
+					"query": [
+						{
+							"key": "id",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DeleteUser",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"DeleteUser: Status code is 204\", function () {",
+							"  pm.response.to.have.status(204);",
+							"});",
+							"",
+							"pm.test(\"DeleteUser: Response body is empty\", function () {",
+							"  pm.expect(pm.response.text()).to.eql(\"\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"if (pm.info.iteration > 0) {",
+							"    pm.execution.setNextRequest(null); // Skip this request for iterations > 0",
+							"}"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/users/2",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"users",
+						"2"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

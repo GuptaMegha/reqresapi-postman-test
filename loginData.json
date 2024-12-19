@@ -1,0 +1,26 @@
+[
+    {
+      "email": "eve.holt@reqres.in",
+      "password": "cityslicka",
+      "expectedStatus": 200,
+      "expectedMessage": "Success"
+    },
+    {
+      "email": "eve.holt@reqres.in",
+      "password": "",
+      "expectedStatus": 400,
+      "expectedMessage": "Missing password"
+    },
+    {
+      "email": "",
+      "password": "cityslicka",
+      "expectedStatus": 400,
+      "expectedMessage": "Missing email or username"
+    },
+    {
+      "email": "test.user@invalid.com",
+      "password": "wrongpassword",
+      "expectedStatus": 400,
+      "expectedMessage": "user not found"
+    }
+  ]
